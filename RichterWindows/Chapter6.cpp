@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Chapter5.h"
+#include "Chapter6.h"
 
 namespace
 {
@@ -55,7 +55,7 @@ namespace
 #endif
 }
 
-bool chapter5::GetNextPrime(uint64_t& number)
+bool chapter6::GetNextPrime(uint64_t& number)
 {
 #ifdef USE_STDLIB
     return std::async([&number](){
