@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Chapter1.h"
 #include "Chapter2.h"
-#include "Chapter5.h"
+#include "Chapter6.h"
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
         const auto& message2 = chapter1::GetFormattedMessage(2);
         const auto& bytestr = chapter2::wstring2string(L"You are so na\u00EFve \U0001F609");
         const auto& widestr = chapter2::string2wstring(bytestr);
-        for (uint64_t prime{18446744073709551437}; chapter5::GetNextPrime(prime); )
+        for (uint64_t prime{18446744073709551437}; chapter6::GetNextPrime(prime); )
         {
             std::cout << prime << std::endl;
         }
