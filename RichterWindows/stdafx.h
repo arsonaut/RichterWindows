@@ -8,5 +8,4 @@
 #include <typeinfo>
 #include <vector>
 
-#define NOMINMAX
 #include <Windows.h>

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Chapter1.h"
-#include "Chapter2.h"
 
 int main()
 {
@@ -8,8 +7,6 @@ int main()
     {
         const auto& message1 = chapter1::GetFormattedMessage(106);
         const auto& message2 = chapter1::GetFormattedMessage(2);
-        const auto& bytestr = chapter2::wstring2string(L"You are so na\u00EFve \U0001F609");
-        const auto& widestr = chapter2::string2wstring(bytestr);
     }
     catch (const std::exception& e)
     {
