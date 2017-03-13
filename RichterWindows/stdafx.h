@@ -3,6 +3,7 @@
 #include "targetver.h"
 
 #include <cstdint>
+#include <future>
 #include <iostream>
 #include <limits>
 #include <string>

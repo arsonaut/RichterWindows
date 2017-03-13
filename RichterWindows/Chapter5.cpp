@@ -46,9 +46,7 @@ namespace
         return false;
     }
 
-#ifdef USE_STDLIB
-
-#else
+#ifndef USE_STDLIB
     unsigned __stdcall NextPrimeThread(void* arg)
     {
         auto& number = *static_cast<uint64_t*>(arg);
@@ -59,6 +57,11 @@ namespace
 
 bool chapter5::GetNextPrime(uint64_t& number)
 {
+#ifdef USE_STDLIB
+    return std::async([&number](){
+        return NextPrime(number);
+    }).get();
+#else
     const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, NextPrimeThread, &number, 0, nullptr));
     if (threadHandle == 0)
     {
@@ -72,4 +75,5 @@ bool chapter5::GetNextPrime(uint64_t& number)
         throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
     }
     return threadExitCode == ERROR_SUCCESS;
+#endif
 }
