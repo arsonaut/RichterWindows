@@ -32,17 +32,44 @@ namespace
             }
         }
     }
+
+    bool NextPrime(uint64_t& number)
+    {
+        while (number < std::numeric_limits<unsigned long long>::max())
+        {
+            ++number;
+            if (IsPrime(number))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+#ifdef USE_STDLIB
+
+#else
+    unsigned __stdcall NextPrimeThread(void* arg)
+    {
+        auto& number = *static_cast<uint64_t*>(arg);
+        return NextPrime(number) ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
+    }
+#endif
 }
 
 bool chapter5::GetNextPrime(uint64_t& number)
 {
-    while (number < std::numeric_limits<unsigned long long>::max())
+    const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, NextPrimeThread, &number, 0, nullptr));
+    if (threadHandle == 0)
     {
-        ++number;
-        if (IsPrime(number))
-        {
-            return true;
-        }
+        throw std::system_error{errno, std::generic_category()};
     }
-    return false;
+    unsigned long threadExitCode{};
+    if (::WaitForSingleObject(threadHandle, INFINITE) != WAIT_OBJECT_0 ||
+        ::GetExitCodeThread(threadHandle, &threadExitCode) != TRUE ||
+        ::CloseHandle(threadHandle) != TRUE)
+    {
+        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+    }
+    return threadExitCode == ERROR_SUCCESS;
 }
