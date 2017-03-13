@@ -2,7 +2,10 @@
 
 #include "targetver.h"
 
+#include <cstdint>
+#include <future>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <system_error>
 #include <typeinfo>
@@ -10,3 +13,4 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <process.h>
