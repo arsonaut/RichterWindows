@@ -136,11 +136,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Chapter1.h" />
+    <ClInclude Include="Chapter2.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Chapter1.cpp" />
+    <ClCompile Include="Chapter2.cpp" />
     <ClCompile Include="RichterWindows.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
