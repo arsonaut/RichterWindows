@@ -67,32 +67,36 @@ namespace
         return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
 
-    bool ThreadLauncher(uint64_t& number, _beginthreadex_proc_type threadFunc)
+    unsigned ThreadLauncher(_beginthreadex_proc_type threadFunc, void* threadArg)
     {
-        NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
-        const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, threadFunc, &threadData, 0, nullptr));
+        const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, threadFunc, threadArg, 0, nullptr));
         if (threadHandle == 0)
         {
             throw std::system_error{errno, std::generic_category()};
         }
-        unsigned long threadExitCode{};
+        unsigned long threadExitCode{0};
         if (::WaitForSingleObject(threadHandle, INFINITE) != WAIT_OBJECT_0 ||
             ::GetExitCodeThread(threadHandle, &threadExitCode) != TRUE ||
             ::CloseHandle(threadHandle) != TRUE)
         {
             throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
         }
-        number = *threadData;
-        return threadExitCode == ERROR_SUCCESS;
+        return threadExitCode;
     }
 }
 
 bool chapter6::GetNextPrime(uint64_t& number)
 {
-    return ThreadLauncher(number, GetNextPrimeThread);
+    NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
+    const auto result = ThreadLauncher(GetNextPrimeThread, &threadData);
+    number = *threadData;
+    return result == ERROR_SUCCESS;
 }
 
 bool chapter7::PrintNextPrime(uint64_t& number)
 {
-    return ThreadLauncher(number, PrintNextPrimeThread);
+    NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
+    const auto result = ThreadLauncher(PrintNextPrimeThread, &threadData);
+    number = *threadData;
+    return result == ERROR_SUCCESS;
 }
