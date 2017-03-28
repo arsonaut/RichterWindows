@@ -101,6 +101,21 @@ namespace
         return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
 
+    using PrintConditionallyThreadData = std::shared_ptr<std::pair<uint64_t, ::HANDLE>>;
+
+    unsigned __stdcall PrintConditionallyNextPrimeThread(void* arg)
+    {
+        PrintConditionallyThreadData threadData{*static_cast<PrintConditionallyThreadData*>(arg)};
+        const auto startTime = ::GetTickCount64();
+        const bool result = NextPrime(threadData->first);
+        const auto elapsedTime = ::GetTickCount64() - startTime;
+        if (result && ::WaitForSingleObject(threadData->second, 0) == WAIT_OBJECT_0)
+        {
+            std::cout << "Next prime = " << threadData->first << " (elapsed time = " << elapsedTime << " msec)" << std::endl;
+        }
+        return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
+    }
+
     unsigned ThreadLauncher(_beginthreadex_proc_type threadFunc, void* threadArg)
     {
         const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, threadFunc, threadArg, 0, nullptr));
@@ -186,7 +201,10 @@ void chapter9::EventWrapper::setState(bool state)
     }
 }
 
-bool chapter9::PrintConditionallyNextPrime(uint64_t & number, ::HANDLE & mutex)
+bool chapter9::PrintConditionallyNextPrime(uint64_t& number, ::HANDLE event)
 {
-    return false;
+    PrintConditionallyThreadData&& threadData = std::make_shared<std::pair<uint64_t, ::HANDLE>>(number, event);
+    const auto result = ThreadLauncher(PrintConditionallyNextPrimeThread, &threadData);
+    number = threadData->first;
+    return result == ERROR_SUCCESS;
 }

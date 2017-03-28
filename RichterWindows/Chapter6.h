@@ -40,5 +40,5 @@ namespace chapter9
         ::HANDLE m_handle;
     };
 
-    bool PrintConditionallyNextPrime(uint64_t& number, ::HANDLE& mutex);
+    bool PrintConditionallyNextPrime(uint64_t& number, ::HANDLE event);
 }
