@@ -51,7 +51,7 @@ namespace
 
     unsigned __stdcall NextPrimeThread(void* arg)
     {
-		NextPrimeThreadData threadData{*static_cast<NextPrimeThreadData*>(arg)};
+        NextPrimeThreadData threadData{*static_cast<NextPrimeThreadData*>(arg)};
         return NextPrime(*threadData) ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
 #endif
