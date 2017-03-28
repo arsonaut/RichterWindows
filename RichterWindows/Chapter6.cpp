@@ -67,6 +67,40 @@ namespace
         return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
 
+    using PrintSyncedThreadData = std::shared_ptr<std::pair<uint64_t, ::CRITICAL_SECTION&>>;
+
+    class CriticalSectionGuard
+    {
+    public:
+        CriticalSectionGuard(::CRITICAL_SECTION& cs)
+            : m_cs{cs}
+        {
+            ::EnterCriticalSection(&m_cs);
+        }
+
+        ~CriticalSectionGuard()
+        {
+            ::LeaveCriticalSection(&m_cs);
+        }
+
+    private:
+        ::CRITICAL_SECTION& m_cs;
+    };
+
+    unsigned __stdcall PrintSyncedNextPrimeThread(void* arg)
+    {
+        PrintSyncedThreadData threadData{*static_cast<PrintSyncedThreadData*>(arg)};
+        const auto startTime = ::GetTickCount64();
+        const bool result = NextPrime(threadData->first);
+        const auto elapsedTime = ::GetTickCount64() - startTime;
+        if (result)
+        {
+            CriticalSectionGuard csGuard{threadData->second};
+            std::cout << "Next prime = " << threadData->first << " (elapsed time = " << elapsedTime << " msec)" << std::endl;
+        }
+        return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
+    }
+
     unsigned ThreadLauncher(_beginthreadex_proc_type threadFunc, void* threadArg)
     {
         const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, threadFunc, threadArg, 0, nullptr));
@@ -98,5 +132,28 @@ bool chapter7::PrintNextPrime(uint64_t& number)
     NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
     const auto result = ThreadLauncher(PrintNextPrimeThread, &threadData);
     number = *threadData;
+    return result == ERROR_SUCCESS;
+}
+
+chapter8::CriticalSectionWrapper::CriticalSectionWrapper()
+{
+    ::InitializeCriticalSection(&m_cs);
+}
+
+chapter8::CriticalSectionWrapper::~CriticalSectionWrapper()
+{
+    ::DeleteCriticalSection(&m_cs);
+}
+
+::CRITICAL_SECTION& chapter8::CriticalSectionWrapper::get()
+{
+    return m_cs;
+}
+
+bool chapter8::PrintSyncedNextPrime(uint64_t& number, ::CRITICAL_SECTION& cs)
+{
+    PrintSyncedThreadData&& threadData = std::make_shared<std::pair<uint64_t, ::CRITICAL_SECTION&>>(number, cs);
+    const auto result = ThreadLauncher(PrintSyncedNextPrimeThread, &threadData);
+    number = threadData->first;
     return result == ERROR_SUCCESS;
 }
