@@ -47,10 +47,12 @@ namespace
     }
 
 #ifndef USE_STDLIB
+	using NextPrimeThreadData = std::shared_ptr<uint64_t>;
+
     unsigned __stdcall NextPrimeThread(void* arg)
     {
-        auto& number = *static_cast<uint64_t*>(arg);
-        return NextPrime(number) ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
+		NextPrimeThreadData threadData{*static_cast<NextPrimeThreadData*>(arg)};
+        return NextPrime(*threadData) ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
 #endif
 }
@@ -58,11 +60,15 @@ namespace
 bool chapter6::GetNextPrime(uint64_t& number)
 {
 #ifdef USE_STDLIB
-    return std::async([&number](){
-        return NextPrime(number);
+    const auto async_result = std::async([number](){
+		const bool result = NextPrime(number);
+        return std::make_pair(result, number);
     }).get();
+	number = async_result.second;
+	return async_result.first;
 #else
-    const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, NextPrimeThread, &number, 0, nullptr));
+	NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
+    const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, NextPrimeThread, &threadData, 0, nullptr));
     if (threadHandle == 0)
     {
         throw std::system_error{errno, std::generic_category()};
@@ -74,6 +80,7 @@ bool chapter6::GetNextPrime(uint64_t& number)
     {
         throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
     }
+	number = *threadData;
     return threadExitCode == ERROR_SUCCESS;
 #endif
 }
