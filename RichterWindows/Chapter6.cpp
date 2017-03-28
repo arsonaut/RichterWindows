@@ -158,8 +158,8 @@ bool chapter8::PrintSyncedNextPrime(uint64_t& number, ::CRITICAL_SECTION& cs)
     return result == ERROR_SUCCESS;
 }
 
-chapter9::MutexWrapper::MutexWrapper()
-    : m_handle{::CreateMutex(nullptr, TRUE, nullptr)}
+chapter9::EventWrapper::EventWrapper(bool initialState)
+    : m_handle{::CreateEvent(nullptr, TRUE, initialState ? TRUE : FALSE, nullptr)}
 {
     if (m_handle == NULL)
     {
@@ -167,12 +167,26 @@ chapter9::MutexWrapper::MutexWrapper()
     }
 }
 
-chapter9::MutexWrapper::~MutexWrapper()
+chapter9::EventWrapper::~EventWrapper()
 {
     ::CloseHandle(m_handle);
 }
 
-::HANDLE chapter9::MutexWrapper::get()
+::HANDLE chapter9::EventWrapper::get()
 {
     return m_handle;
+}
+
+void chapter9::EventWrapper::setState(bool state)
+{
+    const auto result = state ? ::SetEvent(m_handle) : ::ResetEvent(m_handle);
+    if (result == FALSE)
+    {
+        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+    }
+}
+
+bool chapter9::PrintConditionallyNextPrime(uint64_t & number, ::HANDLE & mutex)
+{
+    return false;
 }

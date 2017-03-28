@@ -28,14 +28,17 @@ namespace chapter8
 
 namespace chapter9
 {
-    class MutexWrapper
+    class EventWrapper
     {
     public:
-        MutexWrapper();
-        ~MutexWrapper();
+        EventWrapper(bool initialState);
+        ~EventWrapper();
         ::HANDLE get();
+        void setState(bool state);
 
     private:
         ::HANDLE m_handle;
     };
+
+    bool PrintConditionallyNextPrime(uint64_t& number, ::HANDLE& mutex);
 }
