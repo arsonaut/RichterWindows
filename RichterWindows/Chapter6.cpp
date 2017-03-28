@@ -101,6 +101,21 @@ namespace
         return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
 
+    using PrintConditionallyThreadData = std::shared_ptr<std::pair<uint64_t, ::HANDLE>>;
+
+    unsigned __stdcall PrintConditionallyNextPrimeThread(void* arg)
+    {
+        PrintConditionallyThreadData threadData{*static_cast<PrintConditionallyThreadData*>(arg)};
+        const auto startTime = ::GetTickCount64();
+        const bool result = NextPrime(threadData->first);
+        const auto elapsedTime = ::GetTickCount64() - startTime;
+        if (result && ::WaitForSingleObject(threadData->second, 0) == WAIT_OBJECT_0)
+        {
+            std::cout << "Next prime = " << threadData->first << " (elapsed time = " << elapsedTime << " msec)" << std::endl;
+        }
+        return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
+    }
+
     unsigned ThreadLauncher(_beginthreadex_proc_type threadFunc, void* threadArg)
     {
         const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, threadFunc, threadArg, 0, nullptr));
@@ -154,6 +169,42 @@ bool chapter8::PrintSyncedNextPrime(uint64_t& number, ::CRITICAL_SECTION& cs)
 {
     PrintSyncedThreadData&& threadData = std::make_shared<std::pair<uint64_t, ::CRITICAL_SECTION&>>(number, cs);
     const auto result = ThreadLauncher(PrintSyncedNextPrimeThread, &threadData);
+    number = threadData->first;
+    return result == ERROR_SUCCESS;
+}
+
+chapter9::EventWrapper::EventWrapper(bool initialState)
+    : m_handle{::CreateEvent(nullptr, TRUE, initialState ? TRUE : FALSE, nullptr)}
+{
+    if (m_handle == NULL)
+    {
+        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+    }
+}
+
+chapter9::EventWrapper::~EventWrapper()
+{
+    ::CloseHandle(m_handle);
+}
+
+::HANDLE chapter9::EventWrapper::get()
+{
+    return m_handle;
+}
+
+void chapter9::EventWrapper::setState(bool state)
+{
+    const auto result = state ? ::SetEvent(m_handle) : ::ResetEvent(m_handle);
+    if (result == FALSE)
+    {
+        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+    }
+}
+
+bool chapter9::PrintConditionallyNextPrime(uint64_t& number, ::HANDLE event)
+{
+    PrintConditionallyThreadData&& threadData = std::make_shared<std::pair<uint64_t, ::HANDLE>>(number, event);
+    const auto result = ThreadLauncher(PrintConditionallyNextPrimeThread, &threadData);
     number = threadData->first;
     return result == ERROR_SUCCESS;
 }

@@ -25,3 +25,20 @@ namespace chapter8
 
     bool PrintSyncedNextPrime(uint64_t& number, ::CRITICAL_SECTION& cs);
 }
+
+namespace chapter9
+{
+    class EventWrapper
+    {
+    public:
+        EventWrapper(bool initialState);
+        ~EventWrapper();
+        ::HANDLE get();
+        void setState(bool state);
+
+    private:
+        ::HANDLE m_handle;
+    };
+
+    bool PrintConditionallyNextPrime(uint64_t& number, ::HANDLE event);
+}
