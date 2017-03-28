@@ -2,6 +2,12 @@
 #include "Chapter1.h"
 #include "Chapter2.h"
 #include "Chapter6.h"
+#include "SWMRG.h"
+
+void TestSWMRG()
+{
+    CSWMRG swmrg;
+}
 
 int main()
 {
