@@ -13,9 +13,10 @@ int main()
         const auto& widestr = chapter2::string2wstring(bytestr);
 
         uint64_t prime{18446744073709551437};
-        if (chapter6::GetNextPrime(prime))
+        if (chapter6::GetNextPrime(prime) && chapter7::PrintNextPrime(prime))
         {
-            while (chapter7::PrintNextPrime(prime));
+            chapter8::CriticalSectionWrapper cs;
+            while (chapter8::PrintSyncedNextPrime(prime, cs.get()));
         }
     }
     catch (const std::exception& e)
