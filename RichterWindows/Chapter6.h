@@ -25,3 +25,17 @@ namespace chapter8
 
     bool PrintSyncedNextPrime(uint64_t& number, ::CRITICAL_SECTION& cs);
 }
+
+namespace chapter9
+{
+    class MutexWrapper
+    {
+    public:
+        MutexWrapper();
+        ~MutexWrapper();
+        ::HANDLE get();
+
+    private:
+        ::HANDLE m_handle;
+    };
+}

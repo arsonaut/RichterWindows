@@ -157,3 +157,22 @@ bool chapter8::PrintSyncedNextPrime(uint64_t& number, ::CRITICAL_SECTION& cs)
     number = threadData->first;
     return result == ERROR_SUCCESS;
 }
+
+chapter9::MutexWrapper::MutexWrapper()
+    : m_handle{::CreateMutex(nullptr, TRUE, nullptr)}
+{
+    if (m_handle == NULL)
+    {
+        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+    }
+}
+
+chapter9::MutexWrapper::~MutexWrapper()
+{
+    ::CloseHandle(m_handle);
+}
+
+::HANDLE chapter9::MutexWrapper::get()
+{
+    return m_handle;
+}
