@@ -46,41 +46,53 @@ namespace
         return false;
     }
 
-#ifndef USE_STDLIB
 	using NextPrimeThreadData = std::shared_ptr<uint64_t>;
 
-    unsigned __stdcall NextPrimeThread(void* arg)
+    unsigned __stdcall GetNextPrimeThread(void* arg)
     {
         NextPrimeThreadData threadData{*static_cast<NextPrimeThreadData*>(arg)};
         return NextPrime(*threadData) ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
     }
-#endif
+
+    unsigned __stdcall PrintNextPrimeThread(void* arg)
+    {
+        NextPrimeThreadData threadData{*static_cast<NextPrimeThreadData*>(arg)};
+        const auto startTime = ::GetTickCount64();
+        const bool result = NextPrime(*threadData);
+        const auto elapsedTime = ::GetTickCount64() - startTime;
+        if (result)
+        {
+            std::cout << "Next prime = " << *threadData << " (elapsed time = " << elapsedTime << " msec)" << std::endl;
+        }
+        return result ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
+    }
+
+    bool ThreadLauncher(uint64_t& number, _beginthreadex_proc_type threadFunc)
+    {
+        NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
+        const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, threadFunc, &threadData, 0, nullptr));
+        if (threadHandle == 0)
+        {
+            throw std::system_error{errno, std::generic_category()};
+        }
+        unsigned long threadExitCode{};
+        if (::WaitForSingleObject(threadHandle, INFINITE) != WAIT_OBJECT_0 ||
+            ::GetExitCodeThread(threadHandle, &threadExitCode) != TRUE ||
+            ::CloseHandle(threadHandle) != TRUE)
+        {
+            throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+        }
+        number = *threadData;
+        return threadExitCode == ERROR_SUCCESS;
+    }
 }
 
 bool chapter6::GetNextPrime(uint64_t& number)
 {
-#ifdef USE_STDLIB
-    const auto async_result = std::async([number](){
-		const bool result = NextPrime(number);
-        return std::make_pair(result, number);
-    }).get();
-	number = async_result.second;
-	return async_result.first;
-#else
-	NextPrimeThreadData&& threadData = std::make_shared<uint64_t>(number);
-    const auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(nullptr, 0, NextPrimeThread, &threadData, 0, nullptr));
-    if (threadHandle == 0)
-    {
-        throw std::system_error{errno, std::generic_category()};
-    }
-    unsigned long threadExitCode{};
-    if (::WaitForSingleObject(threadHandle, INFINITE) != WAIT_OBJECT_0 ||
-        ::GetExitCodeThread(threadHandle, &threadExitCode) != TRUE ||
-        ::CloseHandle(threadHandle) != TRUE)
-    {
-        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
-    }
-	number = *threadData;
-    return threadExitCode == ERROR_SUCCESS;
-#endif
+    return ThreadLauncher(number, GetNextPrimeThread);
+}
+
+bool chapter7::PrintNextPrime(uint64_t& number)
+{
+    return ThreadLauncher(number, PrintNextPrimeThread);
 }
