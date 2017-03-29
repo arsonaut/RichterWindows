@@ -7,6 +7,7 @@ public:
 
     void WaitToRead();        // Call this to gain shared read access
     void WaitToWrite();       // Call this to gain exclusive write access
+    void UpgradeToWrite();    // Must only be called between WaitToRead() and Done()
     void Done();              // Call this when done accessing the resource
 
 private:
