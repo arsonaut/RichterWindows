@@ -3,6 +3,7 @@
 #include "Chapter2.h"
 #include "Chapter3.h"
 #include "Chapter4.h"
+#include "Chapter5.h"
 #include "Chapter6.h"
 #include "SWMRG.h"
 
@@ -42,6 +43,12 @@ void TestChapter4()
     std::cout << ">>> Chapter 4" << std::endl;
     const auto exitCode = chapter4::DuplicateHandleCheckExitCode(::GetCurrentThread());
     std::cout << "Children exit code = " << exitCode << std::endl;
+}
+
+void TestChapter5()
+{
+    std::cout << ">>> Chapter 5" << std::endl;
+    chapter5::CreateTwoProcessJob();
 }
 
 void TestChapters6_7_8_9()
@@ -102,6 +109,16 @@ void TestChapter10()
     }
 }
 
+void TestChapter11()
+{
+    std::cout << ">>> Chapter 11" << std::endl;
+    uint64_t prime{1844674407370955};
+    for (size_t n = 0; n < 10 && chapter11::PrintNextPrimeTreadPool(prime); ++n)
+    {
+        std::cout << "Next prime = " << prime << std::endl;
+    }
+}
+
 int main()
 {
     try
@@ -110,8 +127,10 @@ int main()
         TestChapter2();
         TestChapter3();
         TestChapter4();
+        TestChapter5();
         TestChapters6_7_8_9();
         TestChapter10();
+        TestChapter11();
     }
     catch (const std::exception& e)
     {

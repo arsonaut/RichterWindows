@@ -42,3 +42,8 @@ namespace chapter9
 
     bool PrintConditionallyNextPrime(uint64_t& number, ::HANDLE event);
 }
+
+namespace chapter11
+{
+    bool PrintNextPrimeTreadPool(uint64_t& number);
+}

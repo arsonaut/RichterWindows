@@ -132,6 +132,14 @@ namespace
         }
         return threadExitCode;
     }
+
+    using NextPrimeThreadPoolData = std::shared_ptr<std::pair<uint64_t, bool>>;
+
+    void NTAPI GetNextPrimeThreadPool(PTP_CALLBACK_INSTANCE instance, PVOID arg, PTP_WORK work)
+    {
+        NextPrimeThreadPoolData threadData{*static_cast<NextPrimeThreadPoolData*>(arg)};
+        threadData->second = NextPrime(threadData->first);
+    }
 }
 
 bool chapter6::GetNextPrime(uint64_t& number)
@@ -207,4 +215,18 @@ bool chapter9::PrintConditionallyNextPrime(uint64_t& number, ::HANDLE event)
     const auto result = ThreadLauncher(PrintConditionallyNextPrimeThread, &threadData);
     number = threadData->first;
     return result == ERROR_SUCCESS;
+}
+
+bool chapter11::PrintNextPrimeTreadPool(uint64_t& number)
+{
+    NextPrimeThreadPoolData&& threadData = std::make_shared<std::pair<uint64_t, bool>>(number, true);
+    TP_WORK* work{nullptr};
+    if ((work = ::CreateThreadpoolWork(GetNextPrimeThreadPool, &threadData, nullptr)) == nullptr)
+    {
+        throw std::system_error{static_cast<int>(::GetLastError()), std::system_category()};
+    }
+    ::SubmitThreadpoolWork(work);
+    ::WaitForThreadpoolWorkCallbacks(work, FALSE);
+    number = threadData->first;
+    return threadData->second;
 }

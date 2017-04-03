@@ -139,6 +139,7 @@
     <ClInclude Include="Chapter2.h" />
     <ClInclude Include="Chapter3.h" />
     <ClInclude Include="Chapter4.h" />
+    <ClInclude Include="Chapter5.h" />
     <ClInclude Include="Chapter6.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SWMRG.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="Chapter2.cpp" />
     <ClCompile Include="Chapter3.cpp" />
     <ClCompile Include="Chapter4.cpp" />
+    <ClCompile Include="Chapter5.cpp" />
     <ClCompile Include="Chapter6.cpp" />
     <ClCompile Include="RichterWindows.cpp" />
     <ClCompile Include="stdafx.cpp">
