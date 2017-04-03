@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Chapter1.h"
 #include "Chapter2.h"
+#include "Chapter3.h"
 #include "Chapter6.h"
 #include "SWMRG.h"
 
@@ -27,6 +28,12 @@ void TestChapter2()
     {
         std::wcout << "String is NOT the same after double conversion" << std::endl;
     }
+}
+
+void TestChapter3()
+{
+    std::cout << ">>> Chapter 3" << std::endl;
+    chapter3::DuplicateHandleForChildren(::GetCurrentThread());
 }
 
 void TestChapters6_7_8_9()
@@ -93,6 +100,7 @@ int main()
     {
         TestChapter1();
         TestChapter2();
+        TestChapter3();
         TestChapters6_7_8_9();
         TestChapter10();
     }

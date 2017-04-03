@@ -21,42 +21,12 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chapter1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chapter2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chapter6.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SWMRG.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chapter3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RichterWindows.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chapter1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chapter2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chapter6.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SWMRG.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chapter3.cpp">
+    <ClCompile Include="ChildProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
