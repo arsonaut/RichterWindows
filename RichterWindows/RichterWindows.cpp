@@ -4,6 +4,51 @@
 #include "Chapter6.h"
 #include "SWMRG.h"
 
+void TestChapter1()
+{
+    std::cout << ">>> Chapter 1" << std::endl;
+    const auto& message1 = chapter1::GetFormattedMessage(106);
+    std::wcout << message1;
+    const auto& message2 = chapter1::GetFormattedMessage(2);
+    std::wcout << message2;
+}
+
+void TestChapter2()
+{
+    std::cout << ">>> Chapter 2" << std::endl;
+    const auto& wideliteral = L"You are so na\u00EFve \U0001F609";
+    const auto& bytestr = chapter2::wstring2string(wideliteral);
+    const auto& widestr = chapter2::string2wstring(bytestr);
+    if (widestr == wideliteral)
+    {
+        std::wcout << "String is the same after double conversion" << std::endl;
+    }
+    else
+    {
+        std::wcout << "String is NOT the same after double conversion" << std::endl;
+    }
+}
+
+void TestChapters6_7_8_9()
+{
+    std::cout << ">>> Chapters 6-9" << std::endl;
+    uint64_t prime{1844674407370955};
+    if (chapter6::GetNextPrime(prime) && chapter7::PrintNextPrime(prime))
+    {
+        chapter8::CriticalSectionWrapper cs;
+        if (chapter8::PrintSyncedNextPrime(prime, cs.get()))
+        {
+            bool allowed{true};
+            chapter9::EventWrapper event{allowed};
+            for (size_t n = 0; n < 10 && chapter9::PrintConditionallyNextPrime(prime, event.get()); ++n)
+            {
+                allowed = !allowed;
+                event.setState(allowed);
+            }
+        }
+    }
+}
+
 void TestChapter10()
 {
     std::cout << ">>> Chapter 10" << std::endl;
@@ -46,27 +91,10 @@ int main()
 {
     try
     {
-        const auto& message1 = chapter1::GetFormattedMessage(106);
-        const auto& message2 = chapter1::GetFormattedMessage(2);
-        const auto& bytestr = chapter2::wstring2string(L"You are so na\u00EFve \U0001F609");
-        const auto& widestr = chapter2::string2wstring(bytestr);
-
+        TestChapter1();
+        TestChapter2();
+        TestChapters6_7_8_9();
         TestChapter10();
-        uint64_t prime{18446744073709551337};
-        if (chapter6::GetNextPrime(prime) && chapter7::PrintNextPrime(prime))
-        {
-            chapter8::CriticalSectionWrapper cs;
-            if (chapter8::PrintSyncedNextPrime(prime, cs.get()))
-            {
-                bool allowed{true};
-                chapter9::EventWrapper event{allowed};
-                while (chapter9::PrintConditionallyNextPrime(prime, event.get()))
-                {
-                    allowed = !allowed;
-                    event.setState(allowed);
-                }
-            }
-        }
     }
     catch (const std::exception& e)
     {
