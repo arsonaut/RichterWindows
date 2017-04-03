@@ -2,6 +2,7 @@
 #include "Chapter1.h"
 #include "Chapter2.h"
 #include "Chapter3.h"
+#include "Chapter4.h"
 #include "Chapter6.h"
 #include "SWMRG.h"
 
@@ -34,6 +35,13 @@ void TestChapter3()
 {
     std::cout << ">>> Chapter 3" << std::endl;
     chapter3::DuplicateHandleForChildren(::GetCurrentThread());
+}
+
+void TestChapter4()
+{
+    std::cout << ">>> Chapter 4" << std::endl;
+    const auto exitCode = chapter4::DuplicateHandleCheckExitCode(::GetCurrentThread());
+    std::cout << "Children exit code = " << exitCode << std::endl;
 }
 
 void TestChapters6_7_8_9()
@@ -101,6 +109,7 @@ int main()
         TestChapter1();
         TestChapter2();
         TestChapter3();
+        TestChapter4();
         TestChapters6_7_8_9();
         TestChapter10();
     }
