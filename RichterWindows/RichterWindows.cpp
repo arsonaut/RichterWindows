@@ -6,6 +6,7 @@
 
 void TestChapter10()
 {
+    std::cout << ">>> Chapter 10" << std::endl;
     CSWMRG swmrg;
     std::vector<std::thread> threads;
     for (size_t i = 0; i < 20; ++i)

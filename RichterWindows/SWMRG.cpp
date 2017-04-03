@@ -85,27 +85,8 @@ VOID CSWMRG::WaitToWrite() {
 
 void CSWMRG::UpgradeToWrite()
 {
-    ::EnterCriticalSection(&m_cs);
-    
-    const bool needToWait = m_nActive != 1;
-
-    if (!needToWait)
-    {
-        // This thread was the only reader, now becomes a writer
-        m_nActive = -1;
-    }
-    else
-    {
-        // This thread must wait
-        ++m_nWaitingWriters;
-    }
-
-    ::LeaveCriticalSection(&m_cs);
-
-    if (needToWait)
-    {
-        ::WaitForSingleObject(m_hsemWriters, INFINITE);
-    }
+    Done();
+    WaitToWrite();
 }
 
 VOID CSWMRG::Done() {
